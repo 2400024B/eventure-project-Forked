@@ -98,8 +98,10 @@ function createEventCard(event) {
     editEvent(event);
   });
 
+  // ✅ DELETE BUTTON — TESTABLE & STABLE
   const deleteBtn = document.createElement("button");
-  deleteBtn.className = "btn";
+  deleteBtn.className = "btn delete-btn";
+  deleteBtn.setAttribute("data-testid", "delete-btn");
   deleteBtn.textContent = "Delete";
   deleteBtn.addEventListener("click", () => {
     openDeleteModal(event.id);
