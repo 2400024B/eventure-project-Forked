@@ -98,7 +98,7 @@ function createEventCard(event) {
     editEvent(event);
   });
 
-  // ✅ DELETE BUTTON — TESTABLE & STABLE
+  // DELETE BUTTON — TESTABLE & STABLE
   const deleteBtn = document.createElement("button");
   deleteBtn.className = "btn delete-btn";
   deleteBtn.setAttribute("data-testid", "delete-btn");

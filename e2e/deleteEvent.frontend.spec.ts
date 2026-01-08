@@ -1,3 +1,4 @@
+import './playwright-coverage.js';
 import { test, expect } from '@playwright/test';
 
 test.describe('Frontend Tests - Delete Event', () => {
