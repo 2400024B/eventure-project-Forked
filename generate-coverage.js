@@ -23,7 +23,9 @@ async function convertCoverage() {
   for (const file of files) {
     if (!file.endsWith('.json')) continue;
 
-    const v8Coverage = JSON.parse(await fs.readFile(path.join(coverageDir, file), 'utf-8'));
+    const v8Coverage = JSON.parse(
+      await fs.readFile(path.join(coverageDir, file), 'utf-8')
+    );
 
     for (const entry of v8Coverage) {
       if (!entry.url || !entry.source) continue;
@@ -31,27 +33,34 @@ async function convertCoverage() {
       // Skip non-JS files, node_modules, or external URLs (except localhost)
       let pathname;
       try {
-        pathname = entry.url.startsWith('http') || entry.url.startsWith('file://')
-          ? new URL(entry.url).pathname
-          : entry.url;
+        pathname =
+          entry.url.startsWith('http') || entry.url.startsWith('file://')
+            ? new URL(entry.url).pathname
+            : entry.url;
       } catch {
         pathname = entry.url;
       }
 
-      if (!pathname.endsWith('.js') ||
-          (entry.url.startsWith('http') && !entry.url.includes('localhost')) ||
-          entry.url.includes('node_modules')) {
+      if (
+        !pathname.endsWith('.js') ||
+        (entry.url.startsWith('http') && !entry.url.includes('localhost')) ||
+        entry.url.includes('node_modules')
+      ) {
         console.warn(`Skipping file: ${entry.url}`);
         continue;
       }
 
       // Handle Windows file paths
       const filePath = entry.url.startsWith('file://')
-        ? pathname.replace(/^\/([a-zA-Z]:)/, '$1') // /C:/path -> C:/path
+        ? pathname.replace(/^\/([a-zA-Z]:)/, '$1')
         : pathname;
 
       try {
-        const converter = v8toIstanbul("public/" + filePath, 0, { source: entry.source });
+        const converter = v8toIstanbul(
+          'public/' + filePath,
+          0,
+          { source: entry.source }
+        );
         await converter.load();
         converter.applyCoverage(entry.functions);
         coverageMap.merge(converter.toIstanbul());
@@ -75,9 +84,54 @@ async function convertCoverage() {
 
   // Generate HTML and lcov reports
   const context = createContext({ dir: istanbulCoverageDir, coverageMap });
-  ['html', 'lcovonly'].forEach(type => reports.create(type).execute(context));
+  ['html', 'lcovonly'].forEach(type =>
+    reports.create(type).execute(context)
+  );
 
-  console.log(`Coverage report generated in ${istanbulCoverageDir}`);
+  // ================= ADDITIONAL FEATURE =================
+  // Frontend Coverage Threshold Enforcement
+
+  const summary = coverageMap.getCoverageSummary();
+
+  const thresholds = {
+    statements: 90,
+    branches: 90,
+    functions: 90,
+    lines: 90
+  };
+
+  const actual = {
+    statements: summary.statements.pct,
+    branches: summary.branches.pct,
+    functions: summary.functions.pct,
+    lines: summary.lines.pct
+  };
+
+  let failed = false;
+
+  console.log('\nFrontend Coverage Threshold Check:');
+
+  for (const key in thresholds) {
+    if (actual[key] < thresholds[key]) {
+      console.error(
+        `${key} coverage ${actual[key]}% is below threshold (${thresholds[key]}%)`
+      );
+      failed = true;
+    } else {
+      console.log(
+        `${key} coverage ${actual[key]}% meets threshold (${thresholds[key]}%)`
+      );
+    }
+  }
+
+  if (failed) {
+    console.error('\nCoverage thresholds not met.');
+    process.exitCode = 1;
+  } else {
+    console.log('\nAll coverage thresholds met.');
+  }
+
+  console.log(`\nCoverage report generated in ${istanbulCoverageDir}`);
 }
 
 convertCoverage();
