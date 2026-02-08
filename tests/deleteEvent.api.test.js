@@ -4,17 +4,18 @@ const { app, server } = require('../index');
 describe('API Tests - Delete Event', () => {
 
   afterAll(() => {
-    server.close();
+    if (server) {
+      server.close();
+    }
   });
 
-test('DELETE /delete-event/:id - endpoint responds correctly', async () => {
-  const response = await request(app).delete('/delete-event/1');
+  test('DELETE /delete-event/:id - endpoint responds correctly', async () => {
+    const response = await request(app).delete('/delete-event/1');
 
-  expect([200, 400]).toContain(response.statusCode);
-  expect(response.body).toHaveProperty('success');
-  expect(response.body).toHaveProperty('message');
-});
-
+    expect([200, 400]).toContain(response.statusCode);
+    expect(response.body).toHaveProperty('success');
+    expect(response.body).toHaveProperty('message');
+  });
 
   test('DELETE /delete-event/:id - non-existent event ID', async () => {
     const response = await request(app).delete('/delete-event/999');
