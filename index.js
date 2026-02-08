@@ -79,15 +79,19 @@ app.get('/', (req, res) => {
 });
 
 // ==============================
-// Start Server
+// Start Server (SKIP during tests)
 // ==============================
-const server = app.listen(PORT, function () {
-  const address = server.address();
-  const baseUrl = `http://${address.address === '::' ? 'localhost' : address.address}:${address.port}`;
+let server;
 
-  // Lab 11 required logs
-  logger.info(`Demo project at: ${baseUrl}!`);
-  logger.error(`Example of error log`);
-});
+if (process.env.NODE_ENV !== 'test') {
+  server = app.listen(PORT, function () {
+    const address = server.address();
+    const baseUrl = `http://${address.address === '::' ? 'localhost' : address.address}:${address.port}`;
+
+    // Lab 11 required logs
+    logger.info(`Demo project at: ${baseUrl}!`);
+    logger.error(`Example of error log`);
+  });
+}
 
 module.exports = { app, server };
