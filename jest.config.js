@@ -21,4 +21,14 @@ module.exports = {
   // 'text' -> console output
   // 'html' -> detailed browser report
   coverageReporters: ['text', 'html'],
+
+  // (minimum 80% coverage to ensure code quality)
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80,
+    },
+  },
 };
