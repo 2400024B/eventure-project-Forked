@@ -8,10 +8,10 @@ module.exports = {
   // Enable code coverage collection
   collectCoverage: true,
 
-  // Specify which files to include in the coverage report
+  // LIMIT coverage to MY feature only
+  // This excludes teammates' code from coverage calculation
   collectCoverageFrom: [
-    'utils/**/*.js',
-    'index.js',
+    'utils/MikealLeowUtil.js',
   ],
 
   // Directory where coverage reports will be saved
